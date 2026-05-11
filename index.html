@@ -12,6 +12,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "wpk4hxgbtw");
+    </script>
     <style>
         :root {
             --bg: #faf8f4;
@@ -1461,6 +1468,12 @@
             var leads = JSON.parse(localStorage.getItem('fpc_leads') || '[]');
             leads.push({ name: name, email: email, ts: new Date().toISOString() });
             localStorage.setItem('fpc_leads', JSON.stringify(leads));
+
+            if (typeof clarity === 'function') {
+                clarity('set', 'lead_name', name);
+                clarity('set', 'lead_email', email);
+                clarity('event', 'lead_signup');
+            }
 
             document.getElementById('leadForm').style.display = 'none';
             document.getElementById('leadSuccess').style.display = 'block';

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Leads — Admin</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:-apple-system,system-ui,sans-serif;background:#111;color:#e0e0e0;padding:32px;min-height:100vh;}
+        h1{font-size:22px;margin-bottom:8px;}
+        .sub{color:#888;font-size:14px;margin-bottom:24px;}
+        .stats{display:flex;gap:16px;margin-bottom:24px;}
+        .stat{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px 24px;}
+        .stat-num{font-size:28px;font-weight:700;color:#c0502d;}
+        .stat-label{font-size:12px;color:#888;margin-top:4px;}
+        table{width:100%;border-collapse:collapse;background:#1a1a1a;border-radius:8px;overflow:hidden;}
+        th{text-align:left;padding:12px 16px;background:#222;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#888;border-bottom:1px solid #333;}
+        td{padding:12px 16px;border-bottom:1px solid #222;font-size:14px;}
+        tr:last-child td{border-bottom:none;}
+        .empty{text-align:center;padding:48px;color:#555;}
+        .actions{margin-bottom:24px;display:flex;gap:12px;}
+        button{background:#c0502d;color:#fff;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;}
+        button:hover{background:#a24023;}
+        button.sec{background:#333;color:#ccc;}
+        button.sec:hover{background:#444;}
+        .note{margin-top:24px;padding:16px;background:#1a1a2e;border:1px solid #2a2a4e;border-radius:8px;font-size:13px;color:#8888cc;line-height:1.6;}
+        .note strong{color:#aaa;}
+    </style>
+</head>
+<body>
+    <h1>Foot Pain Care — Lead Optins</h1>
+    <p class="sub">localStorage viewer (this browser only)</p>
+    <div class="stats">
+        <div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label">Total Leads</div></div>
+        <div class="stat"><div class="stat-num" id="todayCount">0</div><div class="stat-label">Today</div></div>
+    </div>
+    <div class="actions">
+        <button onclick="refresh()">Refresh</button>
+        <button class="sec" onclick="exportCSV()">Export CSV</button>
+        <button class="sec" onclick="if(confirm('Delete all leads from localStorage?')){localStorage.removeItem('fpc_leads');refresh();}">Clear All</button>
+    </div>
+    <table>
+        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Date</th></tr></thead>
+        <tbody id="tbody"></tbody>
+    </table>
+    <div class="note">
+        <strong>Remote tracking:</strong> Every optin also fires a Clarity custom tag (<code>lead_email</code>, <code>lead_name</code>).<br>
+        To view leads remotely: Clarity dashboard &rarr; Recordings &rarr; filter by Custom Tag &rarr; <code>lead_email</code>.<br>
+        Each tagged session shows the lead's email address.
+    </div>
+    <script>
+        function refresh() {
+            var leads = JSON.parse(localStorage.getItem('fpc_leads') || '[]');
+            var today = new Date().toISOString().slice(0, 10);
+            var todayLeads = leads.filter(function(l) { return l.ts && l.ts.slice(0, 10) === today; });
+            document.getElementById('totalCount').textContent = leads.length;
+            document.getElementById('todayCount').textContent = todayLeads.length;
+            var tbody = document.getElementById('tbody');
+            if (!leads.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty">No leads yet</td></tr>';
+                return;
+            }
+            var rows = leads.slice().reverse().map(function(l, i) {
+                var d = l.ts ? new Date(l.ts).toLocaleString() : '—';
+                return '<tr><td>' + (leads.length - i) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.email) + '</td><td>' + d + '</td></tr>';
+            }).join('');
+            tbody.innerHTML = rows;
+        }
+        function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+        function exportCSV() {
+            var leads = JSON.parse(localStorage.getItem('fpc_leads') || '[]');
+            if (!leads.length) return alert('No leads to export');
+            var csv = 'Name,Email,Date\n' + leads.map(function(l) {
+                return '"' + (l.name||'').replace(/"/g,'""') + '","' + (l.email||'').replace(/"/g,'""') + '","' + (l.ts||'') + '"';
+            }).join('\n');
+            var blob = new Blob([csv], { type: 'text/csv' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'fpc_leads_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
+        }
+        refresh();
+    </script>
+</body>
+</html>
