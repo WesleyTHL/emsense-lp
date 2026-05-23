@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FocusGuard</string>
+    <string name="accessibility_label">FocusGuard — Blocage d\'URL</string>
+    <string name="accessibility_description">Surveille les navigateurs et YouTube pour bloquer les adresses interdites (y compris les Shorts). Aucune donnée n\'est envoyée : tout reste sur l\'appareil.</string>
+</resources>
